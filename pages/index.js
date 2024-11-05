@@ -1,7 +1,7 @@
 import Image from "next/image";
 import localFont from "next/font/local";
-import { motion, useScroll, useTransform, inView } from "framer-motion";
-import { useState } from "react";
+import { motion, useScroll, useWillChange } from "framer-motion";
+import { useEffect, useState } from "react";
 // import {gatito1} from "@/public/gatito1.jpg"
 
 const geistSans = localFont({
@@ -17,7 +17,7 @@ const geistMono = localFont({
 
 export default function Home() {
 
-  const [arrNumber, setArrNumber] = useState([1, 2, 3, 4, 5]);
+  const [number, setNumber] = useState(1);
 
 
   const [arrArticulo, setArrArticulo] = useState([{
@@ -57,7 +57,34 @@ Te pongo un ejemplo con mi carta: Mi Nodo Norte natal está a 5º 36´de Leo y m
 Lo sé… es un trabajo de chinos que requiere paciencia y práctica. Por fortuna, astro.com nos lo pone fácil incluyendo la opción de calcular la carta dracónica en el menú «Extensa selección de cartas» (lo tenéis casi al final)`
   }]);
 
-  const { scrollYProgress } = useScroll();
+  // console.log(scrollYProgress);
+    const { scrollYProgress } = useScroll();
+
+  const handlerScrollYProgress = () => {
+    // console.log(scrollYProgress.current.toFixed(2));
+    setNumber(
+      scrollYProgress.current.toFixed(2) <= 0.0?
+        1
+        :
+        scrollYProgress.current.toFixed(2) <= 0.3 ?
+          2
+          :
+          scrollYProgress.current.toFixed(2) <= 0.5 ?
+            3
+            :
+            scrollYProgress.current.toFixed(2) <= 0.8 ?
+              4
+              :
+              5)
+  }
+
+  useEffect(() => {
+    window.addEventListener("scroll", handlerScrollYProgress)
+    return () => {
+      window.removeEventListener("scroll", handlerScrollYProgress)
+    }
+  }, [])
+
   return (
     <div
       className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
@@ -75,11 +102,11 @@ Lo sé… es un trabajo de chinos que requiere paciencia y práctica. Por fortun
           //   )
           // })
         }
-        <motion.img src={`/gatito1.jpg`} className="fixed top-0 left-0 w-1/2" />
+        <motion.img src={`/gatito${number}.jpg`} className="fixed top-0 left-0 w-1/2" />
         {
           arrArticulo.map((art, index) => {
-            return(
-              <div className="z-30 m-32 bg-white text-black">
+            return (
+              <div className="z-30 m-32 bg-white text-black" key={index}>
                 <h1 className="text-3xl">{art.title}</h1>
                 <label>{art.body}</label>
               </div>
